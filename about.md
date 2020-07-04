@@ -6,7 +6,7 @@ permalink: /about/
 
 With a background in Computer Science, Tudor is mostly focused on machine learning, deep learning and privacy, trying to build tools to close the gap between research and production. His work is mostly centered around [PySyft](https://github.com/OpenMined/PySyft).
 
-Tudor holds a BSc in Computer Science from University Politehnica of Bucharest. He currently works as an reinforcement learning engineer at robotics laboratory of MinesParitech, PSL and a member of [https://www.openmined.org/](OpenMined), a community that aims to make machine learning privacy friendly.
+Tudor holds a BSc in Computer Science from University Politehnica of Bucharest. He currently works as an reinforcement learning engineer at robotics laboratory of MinesParitech, PSL and a member of [Openmined](https://www.openmined.org/), a community that aims to make machine learning privacy friendly.
 
 Tudor also supports the open source community, being the current president of an NGO that raises awarness on the benefits of open source development, [ROSEdu](http://rosedu.org/). In the last two years, trained over 200 people  and organised events for over 1000 people on the open source culture.
 
