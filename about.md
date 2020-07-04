@@ -4,6 +4,8 @@ title: About
 permalink: /about/
 ---
 
+![Tudor](https://twitter.com/TCebere/photo)
+
 With a background in Computer Science, Tudor is mostly focused on machine learning, deep learning and privacy, trying to build tools to close the gap between research and production. His work is mostly centered around [PySyft](https://github.com/OpenMined/PySyft).
 
 Tudor holds a BSc in Computer Science from University Politehnica of Bucharest. He currently works as an reinforcement learning engineer at robotics laboratory of MinesParitech, PSL and a member of [Openmined](https://www.openmined.org/), a community that aims to make machine learning privacy friendly.
