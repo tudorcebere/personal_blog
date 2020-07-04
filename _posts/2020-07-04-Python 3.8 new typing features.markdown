@@ -5,14 +5,14 @@ date:   2020-04-24 15:10:56 +0900
 categories: python typing
 ---
 
-(Recent)[https://docs.python.org/3/whatsnew/3.8.html#typing] improvements in the typing module provided python amazing mechanisms for building healthier codebases.
+[Recent](https://docs.python.org/3/whatsnew/3.8.html#typing) improvements in the typing module provided python amazing mechanisms for building healthier codebases.
 
 We will take a look at the following features:
 * annotations in Python
-* (ForwardRef)[https://docs.python.org/3/library/typing.html#typing.ForwardRef]
-* (generics)[https://docs.python.org/3/library/typing.html#generics]
-* (@overload)[https://docs.python.org/3/library/typing.html#typing.overload]
-* (@final)[https://docs.python.org/3/library/typing.html#typing.final]
+* [ForwardRef](https://docs.python.org/3/library/typing.html#typing.ForwardRef)
+* [generics](https://docs.python.org/3/library/typing.html#generics)
+* [@overload](https://docs.python.org/3/library/typing.html#typing.overload)
+* [@final](https://docs.python.org/3/library/typing.html#typing.final)
 
 ## Annotations in Python
 
