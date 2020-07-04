@@ -15,6 +15,6 @@ Tudor also supports the open source community, being the current president of an
 Reach out to me on:
 * [Facebook](https://www.facebook.com/tudor.cebere/)
 * [LinkedIn](https://www.linkedin.com/in/ioan-tudor-cebere-b18b0713a/)
-* [mail](mailto:tudorcebere@gmail.com)
+* [email](mailto:tudorcebere@gmail.com)
 
 Check my work on [github](https://github.com/tudorcebere) or inspect my full resume.
