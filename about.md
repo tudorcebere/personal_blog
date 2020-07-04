@@ -4,16 +4,14 @@ title: About
 permalink: /about/
 ---
 
+With a background in Computer Science, Tudor is mostly focused on machine learning, deep learning and privacy, trying to build tools to close the gap between research and production. His work is mostly centered around PySyft.
 
-This is the whiteglass theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
-
-You can find the source code for whiteglass at GitHub:
-[yous](https://github.com/yous) /
-[whiteglass](https://github.com/yous/whiteglass)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+Tudor holds a BSc in Computer Science from University Politehnica of Bucharest, he currently works as an reinforcement learning engineer at robotics laboratory of MinesParitech, PSL.
 
 
-[jekyll-organization]: https://github.com/jekyll
+Reach out to me on:
+* [Facebook](https://www.facebook.com/tudor.cebere/)
+* [LinkedIn](https://www.linkedin.com/in/ioan-tudor-cebere-b18b0713a/)
+* [mail](mailto:tudorcebere@gmail.com)
+
+Check my work on [github](https://github.com/tudorcebere) or inspect my full resume.
