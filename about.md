@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-![image](https://github.com/tudorcebere/personal_blog/blob/master/images/tudorcebere.jpg)
+![image](https://github.com/tudorcebere/personal_blog/blob/master/images/tudorcebere.jpg?raw=true)
 
 With a background in Computer Science, Tudor is mostly focused on machine learning, deep learning and privacy, trying to build tools to close the gap between research and production. His work is mostly centered around [PySyft](https://github.com/OpenMined/PySyft).
 
