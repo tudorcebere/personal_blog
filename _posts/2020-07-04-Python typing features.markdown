@@ -24,7 +24,7 @@ def func(name, grades):
   return {name: sum(grades)/len(grades)}
 {% endhighlight %}
 
-At a glance, when you are reading about `func` for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are docstrings
+At a glance, when you are reading about `func` for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are no docstrings
 or documentation available, we need to grind through the code to understand the possible behaviors of the function.
 
 {% highlight python %}
@@ -37,13 +37,27 @@ the func object to see how annotations are stored. Upon running `dir` on the `fu
 the kwargs of the function and the values the annotation value.
 
 
-
 {% highlight python %}
 print(func.__annotations__)
-#=> prints {"name": <class 'str'>, "grades": <class 'list'>, "return": <class 'dict'>}.
+# {"name": <class 'str'>, "grades": <class 'list'>, "return": <class 'dict'>}.
 {% endhighlight %}
 
+As we can see, we still can't understand that much of the code, as the kwarg `grades` expects a list, but we don't know the actual typing of the elements in it. We should dig deeper to provide
+support for generic subscripted typing.
+
 ## Generics
+
+Generics are abstract data types that describes a generic behavior, not actually describing the implementation of a type or a data structure.
+
+The most common generics are:
+* (Optional)[https://docs.python.org/3/library/typing.html#typing.Optional]
+* (Union)[https://docs.python.org/3/library/typing.html#typing.Union]
+* (List)[https://docs.python.org/3/library/typing.html#typing.List]
+* (Tuple)[https://docs.python.org/3/library/typing.html#typing.Tuple]
+* (Dict)[https://docs.python.org/3/library/typing.html#typing.Dict]
+* (Iterable)[https://docs.python.org/3/library/typing.html#typing.Iterable]
+* (Mapping)[https://docs.python.org/3/library/typing.html#typing.Mapping]
+* (Callable)[https://docs.python.org/3/library/typing.html#typing.Callable]
 
 
 ## ForwardRef
