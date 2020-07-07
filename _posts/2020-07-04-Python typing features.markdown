@@ -16,23 +16,31 @@ We will take a look at the following features:
 
 ## Annotations in Python
 
+Annotations are a documentation or static typechecking tool that provide the expected value of an object. Thus, it will not raise errors or provide runtime warnings
+at all. Still, annotations are making the code more readable and specific behaviors can be forced regarding typechecking. Lets explore the benefits of type annotations: 
 
 {% highlight python %}
 def func(name, grades):
   return {name: sum(grades)/len(grades)}
 {% endhighlight %}
 
-
+At a glance, when you are reading about `func` for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are docstrings
+or documentation available, we need to grind through the code to understand the possible behaviors of the function.
 
 {% highlight python %}
 def func(name: str, grades: list) -> dict:
     return {name: sum(grades)/len(grades)}
 {% endhighlight %}
 
+By using annotations on the arguments and on the the return types, we can understand the expect behavior and the actual way to use `func`. On a more detailed level, we can look at
+the func object to see how annotations are stored. Upon running `dir` on the `func` object, we observe that we have the attribute `__annotations__`. This is a dictionary with the keys
+the kwargs of the function and the values the annotation value.
+
 
 
 {% highlight python %}
 print(func.__annotations__)
+#=> prints {"name": <class 'str'>, "grades": <class 'list'>, "return": <class 'dict'>}.
 {% endhighlight %}
 
 ## Generics
