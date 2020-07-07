@@ -51,13 +51,20 @@ Generics are abstract data types that describes a generic behavior, not actually
 
 The most common generics are:
 * (Optional)[https://docs.python.org/3/library/typing.html#typing.Optional]
-* (Union)[https://docs.python.org/3/library/typing.html#typing.Union]
-* (List)[https://docs.python.org/3/library/typing.html#typing.List]
-* (Tuple)[https://docs.python.org/3/library/typing.html#typing.Tuple]
-* (Dict)[https://docs.python.org/3/library/typing.html#typing.Dict]
-* (Iterable)[https://docs.python.org/3/library/typing.html#typing.Iterable]
-* (Mapping)[https://docs.python.org/3/library/typing.html#typing.Mapping]
-* (Callable)[https://docs.python.org/3/library/typing.html#typing.Callable]
+
+{% highlight python %}
+def func(name: str, grades: list) -> dict:
+    return {name: sum(grades)/len(grades)}
+
+{% endhighlight %}
+
+* [Union](https://docs.python.org/3/library/typing.html#typing.Union)
+* [List](https://docs.python.org/3/library/typing.html#typing.List)
+* [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple)
+* [Dict](https://docs.python.org/3/library/typing.html#typing.Dict)
+* [Iterable](https://docs.python.org/3/library/typing.html#typing.Iterable)
+* [Mapping](https://docs.python.org/3/library/typing.html#typing.Mapping)
+* [Callable](https://docs.python.org/3/library/typing.html#typing.Callable)
 
 
 ## ForwardRef
