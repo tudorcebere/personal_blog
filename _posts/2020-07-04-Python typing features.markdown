@@ -47,7 +47,7 @@ support for generic subscripted typing.
 
 ## Generics
 
-Generics are abstract data types that describes a generic behavior, not actually describing the implementation of a type or a data structure.
+Generics are abstract data types that describe a group of types.
 
 The most common generics are:
 * [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)
@@ -65,8 +65,27 @@ We will see why `Optional[list]` is equivalent with `Union[list, None]`.
 
 * [Union](https://docs.python.org/3/library/typing.html#typing.Union)
 
+`Union` describes that the type can be any of the subscripted types.
+
+{% highlight python %}
+def func(school_id: Union[str, int], grades:list) -> dict:
+    if isistance(school_id, int):
+        school_id = str(school_id)
+    return {name: sum(grades)/len(grades)}
+{% endhighlight %}
+
+In this example, we observe that `school_id` can be either `str` or `int`.
 
 * [List](https://docs.python.org/3/library/typing.html#typing.List)
+`List` describes that the type is a `list` that contains elements that are instaces of the subscripted type.
+
+{% highlight python %}
+def func(name: str, grades: List[Union[int, float]]) -> dict:
+    return {name: sum(grades)/len(grades)}
+{% endhighlight %}
+
+In this example, we observe that the list `grades` should contain only `int`s and `float`s. 
+
 * [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple)
 * [Dict](https://docs.python.org/3/library/typing.html#typing.Dict)
 * [Iterable](https://docs.python.org/3/library/typing.html#typing.Iterable)
