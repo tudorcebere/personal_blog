@@ -50,15 +50,22 @@ support for generic subscripted typing.
 Generics are abstract data types that describes a generic behavior, not actually describing the implementation of a type or a data structure.
 
 The most common generics are:
-* (Optional)[https://docs.python.org/3/library/typing.html#typing.Optional]
+* [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)
+
+`Optional` describes that the type can be the subscripted type or `None`.
 
 {% highlight python %}
-def func(name: str, grades: list) -> dict:
+def func(name: str, grades: Optional[list]) -> dict:
+    if grades is None:
+        return {name: 0}
     return {name: sum(grades)/len(grades)}
-
 {% endhighlight %}
 
+We will see why `Optional[list]` is equivalent with `Union[list, None]`.
+
 * [Union](https://docs.python.org/3/library/typing.html#typing.Union)
+
+
 * [List](https://docs.python.org/3/library/typing.html#typing.List)
 * [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple)
 * [Dict](https://docs.python.org/3/library/typing.html#typing.Dict)
