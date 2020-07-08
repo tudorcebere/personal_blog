@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Python typing features</title>
+  <meta name="description" content="Recent improvements in the typing module provided python amazing mechanisms for building healthier codebases. We will take a look at the following features: annotations in Python ForwardRef generics @final Annotations in Python Annotations are a documentation or static typechecking tool that provide the expected value of an object. Thus, it will not raise errors or provide runtime warnings at all. Still, annotations are making the code more readable and specific behaviors can be forced regarding typechecking. Lets explore the benefits of type annotations: def func(name, grades): ... At a glance, when you are reading about func for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are no docstrings or documentation available, we need to grind through the code to understand the possible behaviors of the function. def func(name: str, grades: list) -&amp;gt; dict: ... By using annotations on the arguments and on the the return types, we can understand the expected behavior and the actual way to use func. On a more detailed level, we can look at the func object to see how annotations are stored. Upon running dir on the func object, we observe that we have the attribute __annotations__. This is a dictionary with the keys the kwargs of the function and the values the annotation value. print(func.__annotations__) # {&quot;name&quot;: &amp;lt;class &#39;str&#39;&amp;gt;, &quot;grades&quot;: &amp;lt;class &#39;list&#39;&amp;gt;, &quot;return&quot;: &amp;lt;class &#39;dict&#39;&amp;gt;}. As we can see, we still can’t understand that much of the code, as the kwarg grades expects a list, but we don’t know the actual typing of the elements in it. We should dig deeper to provide support for generic subscripted typing. Generics Generics are abstract data types that describe a subclass of types. We will walk through the most common generics by explaining the following snippet: from typing import Tuple, Mapping, Optional, List, Union, Iterable, Callable, Dict def func(student_info: Tuple[str, str, Mapping[str, int]], grades: Optional[List[Union[int, float]]], grade_modifiers: Iterable[Callable[int, int]]) -&amp;gt; Dict[str, float]: ... Lets analyse each kwarg to explain the documentation provided by the typing annotation: student_info: Tuple[str, str, Mapping[str, int]] The student_info kwarg expects a tuple with three elements, a string, a string and dict-like object that maps strings to ints. Lets take a deeper look. Tuple describes that the type should be a tuple that containts on each position instances of the subscripted types. Here he observe that the kwarg student expects a tuple with three elements, a string, a string and a Mapping generic type that we will talk through soon. The Tuple generic is actually a gem, due to the actual immutability of tuples. Mapping generic is the right way of describing key-value data structures like: dict, ChainMap, TypedValue or any custom key-value data structure, this one describers a mapping from str objects to int objects. grades: Optional[List[Union[int, float]]] The grades expects either None or a list that contains either ints or floats. Optional describes that the type can be the subscripted type or None. By using the Optional generic on the grades kwarg we mark the optional existence of an actual list. The Optional[Type] is equivalent with Union[Type, None]. One might say that it should be Union[Type, NoneType], but as PEP 484 states, None and NoneType are equivalent when type hinting. On a personal note, I don’t like this. List describes that the type should be a list that contains elements that are instaces of the subscripted type. In the above example, we observe that the list grades, if it exists due to the Optional generic, should contain a Union type only, which we will cover next. We will see why we favor the usage of Iterable instead of List. Union describes that the elements of the optional list of the kwarg grades can be either str or int. Union types represent a common artificial parent of the subscripted types that can be used to represent all of them to a static typechecking tool. As a side note, there is no interpreter speedup on using Union types, as Python remains a dynamic language, compared to usage of union types in static languages like C. grade_modifiers: Iterable[Callable[int, int]]): The grade_modifiers kwarg expects a list-like structure that contains function-like objects that expect an int parameter and returns an int object. Iterable generics are the way to describe an iterable type like: set, list, or any custom made type that is iterable, making in generic and permissive. The items generated by the iterator must be an instance of the subscripted type of the generic. In the above example, the kwarg grade_modifiers is an iterable object. Callable generic is an abstraction over any object that can be called on which we can enforce further typing, for example, my_func = lambda x: x + 1 has no possibility of further type hinting, but my_func: Callable[int, int] = lambda x: x + 1 gives the reader a type hint on the further usage of the lambda function. Any callable object (functions, methods, lambda function, callable objects) are an instance of the Callable generic. Dict[str, float] Dict describes that the return type of our function should be a dict with the keys of type str and value of type float. This is not overall not recommended to use due to the lack of genericity, the corect way to represent such data structures is to use Mapping, as this coveres generic key-value structures, one of the most interesting such objects being TypedDict. ForwardRef and future annotations One of the common downfalls when using explicit type hinting is that it requires to actually have the type available when annotating. This generates boilerplate code that is not useful and can generate the infamous circular dependecy error. from module.db1 import db1 from module.db2 import db2 from module.db3 import db3 def func(name: str, grades: list, database: Union[db1, db2]) -&amp;gt; None: ... As of python3.8, if you are using the annotations from the __future__ package, types can be stored as qualified string paths and will be resolved at runtime/when the typechecking tools needs it. This actually provided an amazing speedup in the typing package. from __future__ import annotations import module from typing import Union def func(name: str, grades: list, database: Union[&quot;module.db1&quot;, &quot;module.db2&quot;]) -&amp;gt; None: ... print (func.__annotations__) # {&#39;name&#39;: &amp;lt;class &#39;str&#39;&amp;gt;, &#39;grades&#39;: &amp;lt;class &#39;list&#39;&amp;gt;, &#39;database&#39;: typing.Union[&#39;module.database1&#39;, &#39;module.database2&#39;]} If you are not using the annotations package, the interpreter creates ForwardRef objects, as types are not stored as strings. import module from typing import Union def func(name: str, grades: list, database: Union[&quot;module.db1&quot;, &quot;module.db2&quot;]) -&amp;gt; None: ... print (func.__annotations__) # {&#39;name&#39;: &amp;lt;class &#39;str&#39;&amp;gt;, &#39;grades&#39;: &amp;lt;class &#39;list&#39;&amp;gt;, &#39;database&#39;: typing.Union[ForwardRef(&#39;module.database1&#39;), ForwardRef(&#39;module.database2&#39;)]} Final and @final The Final type and the @final decorator are useful when: a class shouldn’t be inherited. a method shouldn’t be overriden. a variable shouldn’t be reassigned. from typing import Final, final class Interface: # don&#39;t reassign me PI: Final = 3.14 #don&#39;t override me @final def pi(self): return Interface.PI def compute(self) raise NotImplemented # don&#39;t inherit me anymore @final class Implementation(Interface): def compute(self): raise 2*self.pi() Breaking these constraints will result in raising an error. One interesting fact is the the Final is actually a generic one, being able to be subscripted. Why would this be useful? To keep a reference to a container object, like: from typing import Final, Dict grades_dict: Final[Dict[str, int]] = dict() In this post, we’ve observed how to improve a python codebase by providing better documentation and type hinting, enabling static type checking for IDEs. In further posts we will talk about building restrictions based on annotations.">
+  
+
+  <link rel="stylesheet" href="/personal_blog/assets/main.css">
+  <link rel="canonical" href="https://tudorcebere.github.io/personal_blog/2020/04/24/Python-typing-features/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Engineering Notes" href="https://tudorcebere.github.io/personal_blog/feed.xml">
+
+  
+
+  <meta property="fb:admins" content="tudor.cebere">
+  <meta property="og:title" content="Python typing features">
+  <meta property="og:site_name" content="Engineering Notes">
+  <meta property="og:url" content="https://tudorcebere.github.io/personal_blog/2020/04/24/Python-typing-features/">
+  <meta property="og:description" content="Recent improvements in the typing module provided python amazing mechanisms for building healthier codebases. We will take a look at the following features: annotations in Python ForwardRef generics @final Annotations in Python Annotations are a documentation or static typechecking tool that provide the expected value of an object. Thus, it will not raise errors or provide runtime warnings at all. Still, annotations are making the code more readable and specific behaviors can be forced regarding typechecking. Lets explore the benefits of type annotations: def func(name, grades): ... At a glance, when you are reading about func for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are no docstrings or documentation available, we need to grind through the code to understand the possible behaviors of the function. def func(name: str, grades: list) -&amp;gt; dict: ... By using annotations on the arguments and on the the return types, we can understand the expected behavior and the actual way to use func. On a more detailed level, we can look at the func object to see how annotations are stored. Upon running dir on the func object, we observe that we have the attribute __annotations__. This is a dictionary with the keys the kwargs of the function and the values the annotation value. print(func.__annotations__) # {&quot;name&quot;: &amp;lt;class &#39;str&#39;&amp;gt;, &quot;grades&quot;: &amp;lt;class &#39;list&#39;&amp;gt;, &quot;return&quot;: &amp;lt;class &#39;dict&#39;&amp;gt;}. As we can see, we still can’t understand that much of the code, as the kwarg grades expects a list, but we don’t know the actual typing of the elements in it. We should dig deeper to provide support for generic subscripted typing. Generics Generics are abstract data types that describe a subclass of types. We will walk through the most common generics by explaining the following snippet: from typing import Tuple, Mapping, Optional, List, Union, Iterable, Callable, Dict def func(student_info: Tuple[str, str, Mapping[str, int]], grades: Optional[List[Union[int, float]]], grade_modifiers: Iterable[Callable[int, int]]) -&amp;gt; Dict[str, float]: ... Lets analyse each kwarg to explain the documentation provided by the typing annotation: student_info: Tuple[str, str, Mapping[str, int]] The student_info kwarg expects a tuple with three elements, a string, a string and dict-like object that maps strings to ints. Lets take a deeper look. Tuple describes that the type should be a tuple that containts on each position instances of the subscripted types. Here he observe that the kwarg student expects a tuple with three elements, a string, a string and a Mapping generic type that we will talk through soon. The Tuple generic is actually a gem, due to the actual immutability of tuples. Mapping generic is the right way of describing key-value data structures like: dict, ChainMap, TypedValue or any custom key-value data structure, this one describers a mapping from str objects to int objects. grades: Optional[List[Union[int, float]]] The grades expects either None or a list that contains either ints or floats. Optional describes that the type can be the subscripted type or None. By using the Optional generic on the grades kwarg we mark the optional existence of an actual list. The Optional[Type] is equivalent with Union[Type, None]. One might say that it should be Union[Type, NoneType], but as PEP 484 states, None and NoneType are equivalent when type hinting. On a personal note, I don’t like this. List describes that the type should be a list that contains elements that are instaces of the subscripted type. In the above example, we observe that the list grades, if it exists due to the Optional generic, should contain a Union type only, which we will cover next. We will see why we favor the usage of Iterable instead of List. Union describes that the elements of the optional list of the kwarg grades can be either str or int. Union types represent a common artificial parent of the subscripted types that can be used to represent all of them to a static typechecking tool. As a side note, there is no interpreter speedup on using Union types, as Python remains a dynamic language, compared to usage of union types in static languages like C. grade_modifiers: Iterable[Callable[int, int]]): The grade_modifiers kwarg expects a list-like structure that contains function-like objects that expect an int parameter and returns an int object. Iterable generics are the way to describe an iterable type like: set, list, or any custom made type that is iterable, making in generic and permissive. The items generated by the iterator must be an instance of the subscripted type of the generic. In the above example, the kwarg grade_modifiers is an iterable object. Callable generic is an abstraction over any object that can be called on which we can enforce further typing, for example, my_func = lambda x: x + 1 has no possibility of further type hinting, but my_func: Callable[int, int] = lambda x: x + 1 gives the reader a type hint on the further usage of the lambda function. Any callable object (functions, methods, lambda function, callable objects) are an instance of the Callable generic. Dict[str, float] Dict describes that the return type of our function should be a dict with the keys of type str and value of type float. This is not overall not recommended to use due to the lack of genericity, the corect way to represent such data structures is to use Mapping, as this coveres generic key-value structures, one of the most interesting such objects being TypedDict. ForwardRef and future annotations One of the common downfalls when using explicit type hinting is that it requires to actually have the type available when annotating. This generates boilerplate code that is not useful and can generate the infamous circular dependecy error. from module.db1 import db1 from module.db2 import db2 from module.db3 import db3 def func(name: str, grades: list, database: Union[db1, db2]) -&amp;gt; None: ... As of python3.8, if you are using the annotations from the __future__ package, types can be stored as qualified string paths and will be resolved at runtime/when the typechecking tools needs it. This actually provided an amazing speedup in the typing package. from __future__ import annotations import module from typing import Union def func(name: str, grades: list, database: Union[&quot;module.db1&quot;, &quot;module.db2&quot;]) -&amp;gt; None: ... print (func.__annotations__) # {&#39;name&#39;: &amp;lt;class &#39;str&#39;&amp;gt;, &#39;grades&#39;: &amp;lt;class &#39;list&#39;&amp;gt;, &#39;database&#39;: typing.Union[&#39;module.database1&#39;, &#39;module.database2&#39;]} If you are not using the annotations package, the interpreter creates ForwardRef objects, as types are not stored as strings. import module from typing import Union def func(name: str, grades: list, database: Union[&quot;module.db1&quot;, &quot;module.db2&quot;]) -&amp;gt; None: ... print (func.__annotations__) # {&#39;name&#39;: &amp;lt;class &#39;str&#39;&amp;gt;, &#39;grades&#39;: &amp;lt;class &#39;list&#39;&amp;gt;, &#39;database&#39;: typing.Union[ForwardRef(&#39;module.database1&#39;), ForwardRef(&#39;module.database2&#39;)]} Final and @final The Final type and the @final decorator are useful when: a class shouldn’t be inherited. a method shouldn’t be overriden. a variable shouldn’t be reassigned. from typing import Final, final class Interface: # don&#39;t reassign me PI: Final = 3.14 #don&#39;t override me @final def pi(self): return Interface.PI def compute(self) raise NotImplemented # don&#39;t inherit me anymore @final class Implementation(Interface): def compute(self): raise 2*self.pi() Breaking these constraints will result in raising an error. One interesting fact is the the Final is actually a generic one, being able to be subscripted. Why would this be useful? To keep a reference to a container object, like: from typing import Final, Dict grades_dict: Final[Dict[str, int]] = dict() In this post, we’ve observed how to improve a python codebase by providing better documentation and type hinting, enabling static type checking for IDEs. In further posts we will talk about building restrictions based on annotations.">
+  
+  
+    <meta property="og:image" content="https://github.com/tudorcebere/personal_blog/blob/master/images/engineering_notes.png?raw=true">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="TCebere">
+  <meta name="twitter:title" content="Python typing features">
+  <meta name="twitter:description" content="Recent improvements in the typing module provided python amazing mechanisms for building healthier codebases. We will take a look at the following features: annotations in Python ForwardRef generic...">
+  
+    <meta name="twitter:creator" content="TCebere">
+  
+  
+    <meta name="twitter:image:src" content="https://github.com/tudorcebere/personal_blog/blob/master/images/engineering_notes.png?raw=true">
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Bitter:400,400i,700&display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/personal_blog/">Engineering Notes</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/personal_blog/about/">About</a>
+      
+        
+        <a class="page-link" href="/personal_blog/archives/">Archives</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">Python typing features</h1>
+    
+    <p class="post-meta"><time datetime="2020-04-24T06:10:56+00:00" itemprop="datePublished">Apr 24, 2020</time> •
+  
+    
+    
+      
+        <a href="/personal_blog/categories/python/">python</a>,
+      
+    
+      
+    
+  
+    
+    
+      
+    
+      
+        <a href="/personal_blog/categories/typing/">typing</a>
+      
+    
+  
+
+
+
+</p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p><a href="https://docs.python.org/3/whatsnew/3.8.html#typing">Recent</a> improvements in the typing module provided python amazing mechanisms for building healthier codebases.</p>
+
+<p>We will take a look at the following features:</p>
+<ul>
+  <li>annotations in Python</li>
+  <li><a href="https://docs.python.org/3/library/typing.html#typing.ForwardRef">ForwardRef</a></li>
+  <li><a href="https://docs.python.org/3/library/typing.html#generics">generics</a></li>
+  <li><a href="https://docs.python.org/3/library/typing.html#typing.final">@final</a></li>
+</ul>
+
+<h2>Annotations in Python</h2>
+
+<p>Annotations are a documentation or static typechecking tool that provide the expected value of an object. Thus, it will not raise errors or provide runtime warnings
+at all. Still, annotations are making the code more readable and specific behaviors can be forced regarding typechecking. Lets explore the benefits of type annotations:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">grades</span><span class="p">):</span>
+    <span class="p">...</span></code></pre></figure>
+
+<p>At a glance, when you are reading about <code class="highlighter-rouge">func</code> for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are no docstrings
+or documentation available, we need to grind through the code to understand the possible behaviors of the function.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grades</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="p">...</span></code></pre></figure>
+
+<p>By using annotations on the arguments and on the the return types, we can understand the expected behavior and the actual way to use <code class="highlighter-rouge">func</code>. On a more detailed level, we can look at
+the func object to see how annotations are stored. Upon running <code class="highlighter-rouge">dir</code> on the <code class="highlighter-rouge">func</code> object, we observe that we have the attribute <code class="highlighter-rouge">__annotations__</code>. This is a dictionary with the keys
+the kwargs of the function and the values the annotation value.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">print</span><span class="p">(</span><span class="n">func</span><span class="p">.</span><span class="n">__annotations__</span><span class="p">)</span>
+<span class="c1"># {"name": &lt;class 'str'&gt;, "grades": &lt;class 'list'&gt;, "return": &lt;class 'dict'&gt;}.</span></code></pre></figure>
+
+<p>As we can see, we still can’t understand that much of the code, as the kwarg <code class="highlighter-rouge">grades</code> expects a list, but we don’t know the actual typing of the elements in it. We should dig deeper to provide
+support for generic subscripted typing.</p>
+
+<h2>Generics</h2>
+
+<p>Generics are abstract data types that describe a subclass of types. We will walk through the most common generics by explaining the following snippet:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">student_info</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="n">grades</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+            <span class="n">grade_modifiers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="p">...</span></code></pre></figure>
+
+<p>Lets analyse each kwarg to explain the documentation provided by the typing annotation:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">student_info</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span></code></pre></figure>
+
+<p>The <code class="highlighter-rouge">student_info</code> kwarg expects a tuple with three elements, a string, a string and dict-like object that maps strings to ints. Lets take a deeper look.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a> describes that the type should be a <code class="highlighter-rouge">tuple</code> that containts on each position instances of the subscripted types.</p>
+
+<p>Here he observe that the kwarg <code class="highlighter-rouge">student</code> expects a tuple with three elements, a string, a string and a <code class="highlighter-rouge">Mapping</code> generic type that we will talk through soon. The <code class="highlighter-rouge">Tuple</code> generic is actually a gem, due to the actual immutability of tuples.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Mapping">Mapping</a> generic is the right way of describing key-value data structures like: <code class="highlighter-rouge">dict</code>, <code class="highlighter-rouge">ChainMap</code>, <code class="highlighter-rouge">TypedValue</code> or any custom key-value data structure, this one describers a mapping from <code class="highlighter-rouge">str</code> objects
+to <code class="highlighter-rouge">int</code> objects.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">grades</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span></code></pre></figure>
+
+<p>The <code class="highlighter-rouge">grades</code> expects either None or a list that contains either ints or floats.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a> describes that the type can be the subscripted type or <code class="highlighter-rouge">None</code>. By using the <code class="highlighter-rouge">Optional</code> generic on the <code class="highlighter-rouge">grades</code> kwarg we mark the optional existence of an actual list.</p>
+
+<p>The <code class="highlighter-rouge">Optional[Type]</code> is equivalent with <code class="highlighter-rouge">Union[Type, None]</code>. One might say that it should be <code class="highlighter-rouge">Union[Type, NoneType]</code>, but as PEP 484 <a href="https://www.python.org/dev/peps/pep-0484/#using-none">states</a>, <code class="highlighter-rouge">None</code> and <code class="highlighter-rouge">NoneType</code> are equivalent when type hinting. On a personal note, I don’t like this.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.List">List</a> describes that the type should be a <code class="highlighter-rouge">list</code> that contains elements that are instaces of the subscripted type. In the above example, we observe that the list <code class="highlighter-rouge">grades</code>, if it exists due to the <code class="highlighter-rouge">Optional</code> generic, should contain a Union type only, which we will cover next.</p>
+
+<p>We will see why we favor the usage of <code class="highlighter-rouge">Iterable</code> instead of <code class="highlighter-rouge">List</code>.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a> describes that the  elements of the optional list of the kwarg <code class="highlighter-rouge">grades</code> can be either <code class="highlighter-rouge">str</code> or <code class="highlighter-rouge">int</code>. Union types represent a common artificial parent of the subscripted types that can be used to represent all of them to a static typechecking tool.</p>
+
+<p>As a side note, there is no interpreter speedup on using Union types, as Python remains a dynamic language, compared to usage of union types in static languages like C.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">grade_modifiers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]):</span></code></pre></figure>
+
+<p>The <code class="highlighter-rouge">grade_modifiers</code> kwarg expects a list-like structure that contains function-like objects that expect an int parameter and returns an int object.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Iterable">Iterable</a> generics are the way to describe an iterable type like: <code class="highlighter-rouge">set</code>, <code class="highlighter-rouge">list</code>, or any custom made type that is iterable, making in generic and permissive. The items generated by the iterator must be an instance of the
+subscripted type of the generic. In the above example, the kwarg <code class="highlighter-rouge">grade_modifiers</code> is an iterable object.</p>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a> generic is an abstraction over any object that can be called on which we can enforce further typing, for example, <code class="highlighter-rouge">my_func = lambda x: x + 1</code> has no possibility of further type hinting, but <code class="highlighter-rouge">my_func: Callable[int, int] = lambda x: x + 1</code> gives the reader a type hint on the further usage of the lambda function.
+Any callable object (functions, methods, lambda function, callable objects) are an instance of the <code class="highlighter-rouge">Callable</code> generic.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span></code></pre></figure>
+
+<p><a href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a> describes that the return type of our function should be a <code class="highlighter-rouge">dict</code> with the keys of type <code class="highlighter-rouge">str</code> and value of type <code class="highlighter-rouge">float</code>.
+This is not overall not recommended to use due to the lack of genericity, the corect way to represent such data structures is to use <code class="highlighter-rouge">Mapping</code>, as this coveres generic key-value structures, one of the most interesting such objects being <code class="highlighter-rouge">TypedDict</code>.</p>
+
+<h2>ForwardRef and future annotations</h2>
+
+<p>One of the common downfalls when using explicit type hinting is that it requires to actually have the type available when annotating. This generates boilerplate code that is not useful and can generate the
+infamous circular dependecy error.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">module.db1</span> <span class="kn">import</span> <span class="n">db1</span>
+<span class="kn">from</span> <span class="nn">module.db2</span> <span class="kn">import</span> <span class="n">db2</span>
+<span class="kn">from</span> <span class="nn">module.db3</span> <span class="kn">import</span> <span class="n">db3</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grades</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">db1</span><span class="p">,</span> <span class="n">db2</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="p">...</span></code></pre></figure>
+
+<p>As of python3.8, if you are using the <code class="highlighter-rouge">annotations</code> from the <code class="highlighter-rouge">__future__</code> package, types can be stored as qualified string paths and will be resolved at runtime/when the typechecking tools needs it. This actually provided
+an amazing speedup in the <code class="highlighter-rouge">typing</code> package.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span> <span class="nn">module</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grades</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s">"module.db1"</span><span class="p">,</span> <span class="s">"module.db2"</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="p">...</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">func</span><span class="p">.</span><span class="n">__annotations__</span><span class="p">)</span>
+<span class="c1"># {'name': &lt;class 'str'&gt;, 'grades': &lt;class 'list'&gt;, 'database': typing.Union['module.database1', 'module.database2']}</span></code></pre></figure>
+
+<p>If you are not using the annotations package, the interpreter creates <code class="highlighter-rouge">ForwardRef</code> objects, as types are not stored as strings.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">module</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grades</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s">"module.db1"</span><span class="p">,</span> <span class="s">"module.db2"</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="p">...</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">func</span><span class="p">.</span><span class="n">__annotations__</span><span class="p">)</span>
+<span class="c1"># {'name': &lt;class 'str'&gt;, 'grades': &lt;class 'list'&gt;, 'database': typing.Union[ForwardRef('module.database1'), ForwardRef('module.database2')]}</span></code></pre></figure>
+
+<h2>Final and @final</h2>
+<p>The <code class="highlighter-rouge">Final</code> type and the <code class="highlighter-rouge">@final</code> decorator are useful when:</p>
+<ul>
+  <li>a class shouldn’t be inherited.</li>
+  <li>a method shouldn’t be overriden.</li>
+  <li>a variable shouldn’t be reassigned.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">final</span>
+
+<span class="k">class</span> <span class="nc">Interface</span><span class="p">:</span>
+    <span class="c1"># don't reassign me
+</span>    <span class="n">PI</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="mf">3.14</span>
+
+    <span class="c1">#don't override me
+</span>    <span class="o">@</span><span class="n">final</span>
+    <span class="k">def</span> <span class="nf">pi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Interface</span><span class="p">.</span><span class="n">PI</span>
+
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="nb">NotImplemented</span>
+
+<span class="c1"># don't inherit me anymore
+</span><span class="o">@</span><span class="n">final</span>
+<span class="k">class</span> <span class="nc">Implementation</span><span class="p">(</span><span class="n">Interface</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="p">.</span><span class="n">pi</span><span class="p">()</span></code></pre></figure>
+
+<p>Breaking these constraints will result in raising an error. One interesting fact is the the <code class="highlighter-rouge">Final</code> is actually a generic one, being able to be subscripted. Why would this be useful? To keep a reference to a container object, like:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="n">grades_dict</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></code></pre></figure>
+
+<p>In this post, we’ve observed how to improve a python codebase by providing better documentation and type hinting, enabling static type checking for IDEs. In further posts we will talk about building restrictions based on annotations.</p>
+
+
+  </div>
+
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy; Tudor Cebere - Powered by <a href="https://jekyllrb.com">Jekyll</a> &amp; <a href="https://github.com/yous/whiteglass">whiteglass</a> - Subscribe via <a href="https://tudorcebere.github.io/personal_blog/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

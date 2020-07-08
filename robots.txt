@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://tudorcebere.github.io/personal_blog/sitemap.xml
