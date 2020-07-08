@@ -167,8 +167,6 @@ The `Final` type and the `@final` decorator are useful when:
 {% highlight python %}
 from typing import Final, final
 
-
-
 class Interface:
     # don't reassign me
     PI: Final = 3.14
@@ -184,7 +182,19 @@ class Interface:
 class Implementation
     def compute(self):
         raise 2*self.pi()
-
 {% endhighlight %}
+
+Breaking these constraints will result in raising and error. One interesting fact is the the `Final` is actually a generic one, being able to be subscripted. Why would this be useful? To keep a reference to a container object, like:
+
+{% highlight python %}
+from typing import Final, Dict
+
+grades_dict: Final[Dict[str, int]] = dict()
+{% endhighlight %}
+
+
+In this post, we've observed how to improve a python codebase by providing better documentation and type hinting, enabling static type checking for IDEs. In further posts we will talk about building restrictions based on annotations.
+
+
 
 
