@@ -167,6 +167,7 @@ class Interface:
     # don't reassign me
     PI: Final = 3.14
 
+    #don't override me
     @final
     def pi(self):
         return Interface.PI
@@ -174,8 +175,9 @@ class Interface:
     def compute(self)
         raise NotImplemented
 
+# don't inherit me anymore
 @final
-class Implementation
+class Implementation(Interface):
     def compute(self):
         raise 2*self.pi()
 {% endhighlight %}
