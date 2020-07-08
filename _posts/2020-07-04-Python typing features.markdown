@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python typing features."
+title:  "Python typing features"
 date:   2020-04-24 15:10:56 +0900
 categories: python typing
 ---
