@@ -61,53 +61,20 @@ def func(student_info: Tuple[str, str, int], grades: Optional[List[Union[int, fl
 
 The `Optional[Type]` is equivalent with `Union[Type, None]`. One might say that it should be `Union[Type, NoneType]`, but as PEP 484 [states](https://www.python.org/dev/peps/pep-0484/#using-none), `None` and `NoneType` are equivalent when type hinting. On a personal note, I don't like this.
  
-
-#### [Union](https://docs.python.org/3/library/typing.html#typing.Union)
-
-`Union` describes that the type can be any of the subscripted types.
-
-{% highlight python %}
-def func(school_id: Union[str, int], grades:list) -> dict:
-    if isistance(school_id, int):
-        school_id = str(school_id)
-    return {name: sum(grades)/len(grades)}
-{% endhighlight %}
-
-In this example, we observe that `school_id` can be either `str` or `int`.
-
-#### [List](https://docs.python.org/3/library/typing.html#typing.List)
-
-`List` describes that the type should be a `list` that contains elements that are instaces of the subscripted type.
-
-{% highlight python %}
-def func(name: str, grades: List[Union[int, float]]) -> dict:
-    return {name: sum(grades)/len(grades)}
-{% endhighlight %}
-
-In this example, we observe that the list `grades` should contain only `int`s and `float`s. 
-
-#### [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple)
-`Tuple` describes that the type should be a `tuple` that containts on each position instances of the subscripted types.
-
-{% highlight python %}
-def func(student_info: Tuple[str, str, int], grades: list) -> dict:
-    return {student_info[0] + " " + student_info[1]: sum(grades)/len(grades)}
-{% endhighlight %}
-
-Here he observe that the kwarg `student` expects a tuple with three elements, a string, a string and an int.
-
-#### [Dict](https://docs.python.org/3/library/typing.html#typing.Dict)
-
-{% highlight python %}
-def func(name: str, grades: list) -> Dict[str, float]:
-    return {name: sum(grades)/len(grades)}
-{% endhighlight %}
-
-#### [Iterable](https://docs.python.org/3/library/typing.html#typing.Iterable)
+[List](https://docs.python.org/3/library/typing.html#typing.List) `List` describes that the type should be a `list` that contains elements that are instaces of the subscripted type. In this example, we observe that the list `grades` should contain only `int`s and `float`s.
 
 
-#### [Mapping](https://docs.python.org/3/library/typing.html#typing.Mapping)
-#### [Callable](https://docs.python.org/3/library/typing.html#typing.Callable)
+[Union](https://docs.python.org/3/library/typing.html#typing.Union) describes that the kwarg `grades` can be either `str` or `int`. As a side note, there is no interpreter speedup on using Union types, as Python remains a dinamic language
+ 
+[Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) describes that the type should be a `tuple` that containts on each position instances of the subscripted types. Here he observe that the kwarg `student` expects a tuple with three elements, a string, a string and an int.
+
+[Dict](https://docs.python.org/3/library/typing.html#typing.Dict)
+
+[Iterable](https://docs.python.org/3/library/typing.html#typing.Iterable)
+
+[Mapping](https://docs.python.org/3/library/typing.html#typing.Mapping)
+
+[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)
 
 
 ## ForwardRef
