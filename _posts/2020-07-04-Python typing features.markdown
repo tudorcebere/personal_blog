@@ -11,7 +11,6 @@ We will take a look at the following features:
 * annotations in Python
 * [ForwardRef](https://docs.python.org/3/library/typing.html#typing.ForwardRef)
 * [generics](https://docs.python.org/3/library/typing.html#generics)
-* [@overload](https://docs.python.org/3/library/typing.html#typing.overload)
 * [@final](https://docs.python.org/3/library/typing.html#typing.final)
 
 ## Annotations in Python
@@ -21,7 +20,7 @@ at all. Still, annotations are making the code more readable and specific behavi
 
 {% highlight python %}
 def func(name, grades):
-  return {name: sum(grades)/len(grades)}
+    ...
 {% endhighlight %}
 
 At a glance, when you are reading about `func` for the first time, you cannot be sure of the types of the arguments at all, nor about the return type. If there are no docstrings
@@ -29,10 +28,10 @@ or documentation available, we need to grind through the code to understand the 
 
 {% highlight python %}
 def func(name: str, grades: list) -> dict:
-    return {name: sum(grades)/len(grades)}
+    ...
 {% endhighlight %}
 
-By using annotations on the arguments and on the the return types, we can understand the expect behavior and the actual way to use `func`. On a more detailed level, we can look at
+By using annotations on the arguments and on the the return types, we can understand the expected behavior and the actual way to use `func`. On a more detailed level, we can look at
 the func object to see how annotations are stored. Upon running `dir` on the `func` object, we observe that we have the attribute `__annotations__`. This is a dictionary with the keys
 the kwargs of the function and the values the annotation value.
 
@@ -50,21 +49,19 @@ support for generic subscripted typing.
 Generics are abstract data types that describe a subclass of types. We will walk through the most common generics by explaining the following snippet:
 
 {% highlight python %}
+from typing import Tuple, Mapping, Optional, List, Union, Iterable, Callable, Dict
+
 def func(student_info: Tuple[str, str, Mapping[str, int]],
             grades: Optional[List[Union[int, float]]],
             grade_modifiers: Iterable[Callable[int, int]]) -> Dict[str, float]:
-    if grades is None:
-        return {name: 0}
-    return {name: sum(grades)/len(grades)}
+    ...
 {% endhighlight %}
 
 Lets analyse each kwarg to explain the documentation provided by the typing annotation:
 
-
 {% highlight python %}
 student_info: Tuple[str, str, Mapping[str, int]]
 {% endhighlight %}
-
 
 The `student_info` kwarg expects a tuple with three elements, a string, a string and dict-like object that maps strings to ints. Lets take a deeper look.
 
@@ -125,7 +122,7 @@ from module.db2 import db2
 from module.db3 import db3
 
 def func(name: str, grades: list, database: Union[db1, db2]) -> None:
-    database.insert(name, sum(grades)/len(grades))
+    ...
 {% endhighlight %}
 
 
@@ -138,7 +135,7 @@ import module
 from typing import Union
 
 def func(name: str, grades: list, database: Union["module.db1", "module.db2"]) -> None:
-    database.insert(name, sum(grades)/len(grades))
+    ...
 
 print (func.__annotations__)
 # {'name': <class 'str'>, 'grades': <class 'list'>, 'database': typing.Union['module.database1', 'module.database2']}
@@ -147,12 +144,11 @@ print (func.__annotations__)
 If you are not using the annotations package, the interpreter creates `ForwardRef` objects, as types are not stored as strings.
 
 {% highlight python %}
-from __future__ import annotations
 import module
 from typing import Union
 
 def func(name: str, grades: list, database: Union["module.db1", "module.db2"]) -> None:
-    database.insert(name, sum(grades)/len(grades))
+    ...
 
 print (func.__annotations__)
 # {'name': <class 'str'>, 'grades': <class 'list'>, 'database': typing.Union[ForwardRef('module.database1'), ForwardRef('module.database2')]}
@@ -184,7 +180,7 @@ class Implementation
         raise 2*self.pi()
 {% endhighlight %}
 
-Breaking these constraints will result in raising and error. One interesting fact is the the `Final` is actually a generic one, being able to be subscripted. Why would this be useful? To keep a reference to a container object, like:
+Breaking these constraints will result in raising an error. One interesting fact is the the `Final` is actually a generic one, being able to be subscripted. Why would this be useful? To keep a reference to a container object, like:
 
 {% highlight python %}
 from typing import Final, Dict
