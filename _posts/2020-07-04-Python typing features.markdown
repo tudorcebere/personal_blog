@@ -114,32 +114,47 @@ Dict[str, float]
 This is not overall not recommended to use due to the lack of genericity, the corect way to represent such data structures is to use `Mapping`, as this coveres generic key-value structures, one of the most interesting such objects being `TypedDict`.
 
 
-## ForwardRef
+## ForwardRef and future annotations
+
+One of the common downfalls when using explicit type hinting is that it requires to actually have the type available when annotating. This generates boilerplate code that is not useful and can generate the
+infamous circular dependecy error. 
+
 
 {% highlight python %}
-def func(name: str, grades: list, database: ??) -> None:
+from module.db1 import db1
+from module.db2 import db2
+from module.db3 import db3
+
+def func(name: str, grades: list, database: Union[db1, db2]) -> None:
     database.insert(name, sum(grades)/len(grades))
 {% endhighlight %}
 
 
-{% highlight python %}
-from database1 import db1
-from database2 import db2
-from database3 import db3
-
-def func(name: str, grades: list, database: Union[db1, db2, db3]) -> None:
-    database.insert(name, sum(grades)/len(grades))
-{% endhighlight %}
-
+As of python3.8, if you are using the `annotations` from the `__future__` package, types can be stored as qualified string paths and will be resolved at runtime/when the typechecking tools needs it. This actually provided
+an amazing speedup in the `typing` package.
 
 {% highlight python %}
 from __future__ import annotations
+import module
+from typing import Union
 
-def func(name: str, grades: list, database: Union["database1.db1", "database.db2", "database.db3"]) -> None:
+def func(name: str, grades: list, database: Union["module.db1", "module.db2"]) -> None:
     database.insert(name, sum(grades)/len(grades))
+
+print (func.__annotations__)
+# {'name': <class 'str'>, 'grades': <class 'list'>, 'database': typing.Union['module.database1', 'module.database2']}
 {% endhighlight %}
 
+If you are not using the annotations package, the interpreter creates `ForwardRef` objects, as types are not stored as strings.
 
 {% highlight python %}
+from __future__ import annotations
+import module
+from typing import Union
+
+def func(name: str, grades: list, database: Union["module.db1", "module.db2"]) -> None:
+    database.insert(name, sum(grades)/len(grades))
+
 print (func.__annotations__)
+# {'name': <class 'str'>, 'grades': <class 'list'>, 'database': typing.Union[ForwardRef('module.database1'), ForwardRef('module.database2')]}
 {% endhighlight %}
